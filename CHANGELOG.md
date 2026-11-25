@@ -3,7 +3,7 @@
 ## 25/11/2026: soát lỗi toàn bộ repo
 
 - `kb.py hoc`, `thu-nghiem`, `ket-thuc` không còn báo lỗi trên Python 3.9, bản có sẵn của macOS. Trước đây mọi lệnh ghi sổ đều
-  dừng với `TypeError` trên máy đó. CI giờ chạy thêm Python 3.9.
+  dừng với `TypeError` trên máy đó. CI giờ chạy thêm Python 3.9 (trên Windows).
 - `kb.py so-lieu` và `cham-diem` đọc `1,234` lượt xem là một nghìn hai trăm ba mươi tư (trước đây hiểu thành một phẩy hai),
   đọc đúng `1.234,50` và `$15`;
   đọc được CSV lưu bằng Excel bản tiếng Việt (dấu `;`); file không phải UTF-8 thì báo cách lưu lại, không in traceback.

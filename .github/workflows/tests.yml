@@ -8,6 +8,10 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         # 3.9 là bản có sẵn trên macOS (/usr/bin/python3); công cụ phải chạy được trên đó.
         python: ["3.9", "3.12"]
+        exclude:
+          # setup-python không còn bản 3.9 cho Ubuntu 26.04; Windows vẫn có, đủ để bắt lỗi dùng tính năng 3.10 trở đi.
+          - os: ubuntu-latest
+            python: "3.9"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

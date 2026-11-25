@@ -58,6 +58,6 @@ Gồm các agent (`.claude/agents/`), các skill (`.claude/skills/gr-*`) và s�
 ## Kiểm thử
 
 `tools/kb.py` và `tools/soat_skill.py` chỉ dùng thư viện chuẩn Python (3.9 trở lên: macOS có sẵn 3.9, nên không dùng
-tính năng của 3.10 trở đi như `match`, `Path.write_text(newline=...)`). CI chạy Ubuntu và Windows, Python 3.9 và 3.12.
+tính năng của 3.10 trở đi như `match`, `Path.write_text(newline=...)`). CI chạy Ubuntu (3.12) và Windows (3.9 và 3.12).
 Chạy `python -m pytest` trước khi đẩy code.
 Ghi thay đổi vào đầu `CHANGELOG.md`.
