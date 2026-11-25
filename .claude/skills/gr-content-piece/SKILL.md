@@ -34,3 +34,5 @@ I build <app>, an open-source <...>. Code: <GitHub>. Builds and support: <Gumroa
 - Không quá 20% bài nói về app.
 - Bản dịch: dịch lại ý cho tự nhiên, đổi ví dụ cho hợp cộng đồng.
 - Chạy `gr-compliance-check`, lưu ở `content/YYYY-MM-DD-<ten>.md`, ghi `ref` vào cuối file để đo.
+
+Sửa câu chữ trước khi giao: `.claude/skills/ext-copy-editing/SKILL.md` (bỏ dấu hiệu văn AI). Bài cho dev.to, Hashnode: xem thêm `.claude/skills/ext-open-source-marketing/SKILL.md`.

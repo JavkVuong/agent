@@ -43,8 +43,17 @@ Gồm các agent (`.claude/agents/`), các skill (`.claude/skills/gr-*`) và s�
 - Lần chạy không có người (GitHub Actions, cron): không hỏi lại, ghi câu hỏi vào báo cáo trong `reports/`.
 - Không ghi token, mật khẩu, email khách hàng vào repo.
 - AI không phải Claude đọc `AGENTS.md`. Hướng dẫn chia sẻ và chạy tự động: `docs/chia-se-va-tu-dong.md`.
+- Lời nhắc chung cho mọi lần chạy định kỳ: `automation/nghien-cuu-dinh-ky.md`. Mỗi repo chỉ bật một lịch.
+
+## Skill ngoài (`ext-*`)
+
+- Chép từ cộng đồng, giữ nguyên giấy phép gốc. Nguồn và commit ghi trong `THIRD_PARTY.md`.
+- Chỉ là tài liệu tham khảo: quy tắc trong file này thắng khi khác. Skill ngoài không được làm agent tự đăng, tự nộp, tự gửi.
+- Không sửa thân bài skill ngoài, trừ khi cập nhật lên commit mới theo `gr-skill-scout`. Ghi chú riêng đặt trong khối tiếng Việt ở đầu.
+- Thêm hay cập nhật skill ngoài: chỉ khi có người duyệt, qua pull request, và `python tools/soat_skill.py` phải sạch.
+  Lần chạy tự động chỉ được đề xuất trong báo cáo.
 
 ## Kiểm thử
 
-`tools/kb.py` chỉ dùng thư viện chuẩn Python (3.9 trở lên). Chạy `python -m pytest` trước khi đẩy code.
+`tools/kb.py` và `tools/soat_skill.py` chỉ dùng thư viện chuẩn Python (3.9 trở lên). Chạy `python -m pytest` trước khi đẩy code.
 Ghi thay đổi vào đầu `CHANGELOG.md`.

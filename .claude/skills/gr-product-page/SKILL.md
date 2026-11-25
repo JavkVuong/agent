@@ -14,3 +14,11 @@ description: Viết lại hoặc kiểm tra trang bán Gumroad của Vutty hay V
 7. Lưu ở `content/gumroad-<app>-YYYY-MM-DD.md`, đưa người dùng dán vào Gumroad. Agent không tự sửa trang Gumroad.
 
 Sau 14 ngày, so tỷ lệ chuyển đổi trước và sau (skill `gr-sales-review`), đóng thí nghiệm.
+
+## Tham khảo thêm (skill ngoài)
+
+- Chẩn đoán trang và thứ tự sửa: `.claude/skills/ext-cro/SKILL.md`.
+- Viết và sửa câu chữ: `.claude/skills/ext-copywriting/SKILL.md`, `.claude/skills/ext-copy-editing/SKILL.md`.
+- Vì sao trả tiền, gói đôi, bảo đảm hoàn tiền: `.claude/skills/ext-offers/SKILL.md`.
+- Giá: `.claude/skills/ext-pricing/SKILL.md` (đọc mục về mức giá kết thúc bằng 9).
+- Câu hỏi thường gặp trên trang: `.claude/skills/ext-kb-article/SKILL.md`.

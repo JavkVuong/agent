@@ -54,19 +54,21 @@ def test_hoc_bai_hoc_trong(repo):
 
 
 def test_thay_the_giu_bai_cu(repo):
+    truoc = kb.tong_quan(repo)["bai_hoc_hieu_luc"]
     ma = kb.them_bai_hoc(repo, "noi-dung", "Bài mới", "", "cao", "kenh")
     kb.thay_the_bai_hoc(repo, "L-0002", ma)
     text = _doc(repo / "knowledge/learnings/LEARNINGS.md")
     assert "| L-0002 |" in text and f"thay-the bởi {ma}" in text
-    assert kb.tong_quan(repo)["bai_hoc_hieu_luc"] == 5
+    assert kb.tong_quan(repo)["bai_hoc_hieu_luc"] == truoc  # thêm 1, thay thế 1
     with pytest.raises(kb.ToolError):
         kb.thay_the_bai_hoc(repo, "L-0999", ma)
 
 
 def test_thi_nghiem_mo_dong_tao_bai_hoc(repo):
+    dang_chay = len(kb.tong_quan(repo)["thi_nghiem_dang_chay"])
     ma = kb.mo_thi_nghiem(repo, "Gói đôi bán chạy hơn", "14 ngày", "doanh thu", "+20%", "2026-11-25")
     assert re.fullmatch(r"E-20261125-[0-9a-f]{4}", ma)
-    assert len(kb.tong_quan(repo)["thi_nghiem_dang_chay"]) == 3
+    assert len(kb.tong_quan(repo)["thi_nghiem_dang_chay"]) == dang_chay + 1
     bai = kb.dong_thi_nghiem(repo, ma, "trước 45 USD, sau 40 USD", "thua", "2026-12-09")
     text = _doc(repo / "knowledge/learnings/LEARNINGS.md")
     assert f"| {bai} | 2026-12-09 | thi-nghiem | Sai: Gói đôi bán chạy hơn |" in text
@@ -77,6 +79,9 @@ def test_thi_nghiem_mo_dong_tao_bai_hoc(repo):
 
 
 def test_file_qua_han(repo):
+    # Đặt mọi ngày cập nhật về 25/11/2026 để kiểm thử không hỏng khi lần chạy định kỳ cập nhật sổ thật.
+    for f in (repo / "knowledge").rglob("*.md"):
+        f.write_text(re.sub(r"(?m)^cap_nhat: .*$", "cap_nhat: 2026-11-25", _doc(f)), encoding="utf-8")
     assert kb.file_qua_han(repo, "2026-11-26") == []
     ds = dict(kb.file_qua_han(repo, "2026-12-10"))
     assert ds["knowledge/market/trends-log.md"] == 8

@@ -15,3 +15,5 @@ Làm trên `knowledge/brand/brand-book.md`. Mỗi lần chốt một mục.
 6. **Kiểm tra một bài**: chấm 1 đến 5 cho định vị, giọng, sự cụ thể, nói thật điểm yếu. Dưới 4 thì nói sửa gì.
 
 Mục đã chốt: bỏ `[CẦN ĐIỀN]`, đổi `cap_nhat:`, ghi `python tools/kb.py hoc --chu-de thuong-hieu --bai-hoc "Chốt ..." --do-tin cao --nguon nguoi-dung`.
+
+README và trang GitHub (nút Gumroad, ảnh, huy hiệu): `.claude/skills/ext-github-presence/SKILL.md`.

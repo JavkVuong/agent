@@ -38,3 +38,9 @@ Toàn bộ `LEARNINGS.md`, `EXPERIMENTS.md`, số liệu 4 tuần, 4 mục đầ
 ```
 
 Mở thí nghiệm cho từng hướng bằng `python tools/kb.py thu-nghiem`, ghi ID vào file. Trả lời người dùng 3 hướng, mỗi hướng 2 dòng, một hướng khuyến nghị làm trước.
+
+## Tham khảo thêm (skill ngoài)
+
+- Giá và gói: `.claude/skills/ext-pricing/SKILL.md`, `.claude/skills/ext-offers/SKILL.md`.
+- Tăng trưởng dự án mã nguồn mở: `.claude/skills/ext-open-source-marketing/SKILL.md`.
+- Chuỗi email cho người mua: `.claude/skills/ext-email-sequence/SKILL.md`.

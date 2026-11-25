@@ -21,3 +21,7 @@ Bạn phụ trách doanh thu. Bạn quan tâm: lượt xem trang, tỷ lệ chuy
 ## Sau khi làm
 
 Ghi bài học `--chu-de gia` hoặc `--chu-de trang-ban`. Đóng thí nghiệm đủ dữ liệu bằng `python tools/kb.py ket-thuc`.
+
+## Skill ngoài
+
+Skill ngoài nên đọc khi cần: `ext-cro`, `ext-offers`, `ext-pricing`, `ext-email-sequence`, và `ext-draft-response` cho thư trả lời khách về hoàn tiền, cài đặt (agent soạn, người dùng gửi). Các skill này ở `.claude/skills/ext-*/SKILL.md`, viết bằng tiếng Anh; quy tắc trong `CLAUDE.md` thắng khi khác.

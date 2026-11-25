@@ -21,6 +21,9 @@ AI khác: bảo nó đọc và làm theo file tương ứng, ví dụ:
 | Viết bài, bài ra mắt | `.claude/skills/gr-content-piece/SKILL.md`, `.claude/skills/gr-launch-post/SKILL.md` |
 | Trang bán Gumroad | `.claude/skills/gr-product-page/SKILL.md` |
 | Kiểm tra trước khi đăng | `.claude/skills/gr-compliance-check/SKILL.md` |
+| Dò skill mới mỗi tháng | `.claude/skills/gr-skill-scout/SKILL.md` |
+| Lần chạy định kỳ không có người | `automation/nghien-cuu-dinh-ky.md` |
+| Skill ngoài (trang bán, giá, ra mắt, README, email) | `.claude/skills/ext-*/SKILL.md`, danh sách ở `THIRD_PARTY.md` |
 | Vai trò từng agent | `.claude/agents/*.md` (phần sau dòng `---` thứ hai là lời dặn cho vai đó) |
 
 ## Bắt buộc
@@ -28,6 +31,6 @@ AI khác: bảo nó đọc và làm theo file tương ứng, ví dụ:
 - Đọc `knowledge/INDEX.md` và `knowledge/learnings/LEARNINGS.md` trước khi làm.
 - Ghi sổ chỉ bằng `python tools/kb.py` (chỉ cần Python 3.9+). Không sửa tay bảng bài học và thí nghiệm.
 - Làm trên nhánh riêng, mở pull request. Không đẩy thẳng lên `main`.
-- Chạy `python -m pytest` trước khi đẩy.
+- Chạy `python tools/soat_skill.py` và `python -m pytest` trước khi đẩy.
 - Không đăng bài, không sửa trang Gumroad, không gửi email thay người dùng.
 - Không ghi token, mật khẩu, số tài khoản vào repo.

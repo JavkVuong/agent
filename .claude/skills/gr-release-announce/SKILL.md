@@ -15,3 +15,5 @@ description: Biến release notes của Vutty hoặc Vutidy thành nội dung - 
 5. `gr-compliance-check`, lưu ở `content/release-<app>-<phien-ban>.md`.
 
 Bài thông báo kéo ít đơn mới (bài học L-0002); mục đích chính là giữ người đã mua và người theo dõi.
+
+Chuỗi email gửi người mua sau mỗi bản lớn: `.claude/skills/ext-email-sequence/SKILL.md`.

@@ -22,3 +22,7 @@ Thương hiệu ở đây là **lòng tin**: người ta đưa khoá SSH và quy
 ## Sau khi làm
 
 Cập nhật `knowledge/brand/brand-book.md`, bỏ `[CẦN ĐIỀN]` ở mục đã chốt, đổi `cap_nhat:`. Ghi bài học `--chu-de thuong-hieu` khi người dùng chốt một lựa chọn.
+
+## Skill ngoài
+
+Skill ngoài nên đọc khi cần: `ext-github-presence`, `ext-open-source-marketing`, `ext-copywriting`. Các skill này ở `.claude/skills/ext-*/SKILL.md`, viết bằng tiếng Anh; quy tắc trong `CLAUDE.md` thắng khi khác.

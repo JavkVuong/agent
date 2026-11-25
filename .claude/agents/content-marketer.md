@@ -21,3 +21,7 @@ Bạn viết nội dung cho một lập trình viên độc lập. Bạn bán b�
 ## Sau khi làm
 
 Lưu bài ở `content/YYYY-MM-DD-<ten>.md`. Khi có kết quả (lượt xem, đơn theo `ref`), ghi bài học `--chu-de noi-dung`.
+
+## Skill ngoài
+
+Skill ngoài nên đọc khi cần: `ext-copywriting`, `ext-copy-editing`, `ext-hacker-news-strategy`, `ext-reddit-engagement`, `ext-launch`, `ext-directory-submissions`. Các skill này ở `.claude/skills/ext-*/SKILL.md`, viết bằng tiếng Anh; quy tắc trong `CLAUDE.md` thắng khi khác.

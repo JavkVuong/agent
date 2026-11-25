@@ -1,4 +1,4 @@
-# Mỗi sáng thứ Hai (8:17 giờ Việt Nam) Claude quét thị trường, cập nhật knowledge/ và mở một pull request.
+# Mỗi sáng thứ Hai (8:17 giờ Việt Nam) Claude làm theo automation/nghien-cuu-dinh-ky.md và mở một pull request.
 # Chưa thêm secret CLAUDE_CODE_OAUTH_TOKEN (hoặc ANTHROPIC_API_KEY) thì workflow tự bỏ qua, không báo lỗi.
 # Cách bật: docs/chia-se-va-tu-dong.md
 name: weekly-research
@@ -50,16 +50,11 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
-            Đọc CLAUDE.md và knowledge/INDEX.md. Đây là lần chạy tự động hằng tuần, không có người trả lời câu hỏi.
-            1. Làm theo .claude/skills/gr-market-scan/SKILL.md.
-            2. Chạy `python tools/kb.py cu`; với file quá hạn trong knowledge/market hoặc knowledge/products, nghiên cứu lại và cập nhật.
-            3. Ghi bài học mới (nếu có) bằng `python tools/kb.py hoc`.
-            4. Viết báo cáo ngắn bằng tiếng Việt ở reports/<năm>-W<tuần>.md: 3 điều mới, 1 cơ hội, việc người dùng nên làm tuần này.
-            5. Chạy `python -m pytest -q`.
-            Chỉ sửa file trong repo. Không commit, không push, không đăng bài ở đâu cả.
+            Đọc và làm theo automation/nghien-cuu-dinh-ky.md.
+            Bạn đang chạy trong GitHub Actions: bỏ qua bước tạo nhánh, không commit, không push; workflow tự mở pull request.
           claude_args: |
             --max-turns 80
-            --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,Bash(python tools/kb.py:*),Bash(python -m pytest:*)"
+            --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,Bash(python tools/kb.py:*),Bash(python -m pytest:*),Bash(python tools/soat_skill.py:*)"
 
       - name: Mở pull request với các thay đổi
         if: steps.check.outputs.co_token == 'true'
@@ -67,7 +62,7 @@ jobs:
         with:
           branch: auto/nghien-cuu-hang-tuan
           commit-message: "Nghiên cứu thị trường hằng tuần (tự động)"
-          title: "Nghiên cứu thị trường hằng tuần"
+          title: "Nghiên cứu thị trường định kỳ"
           body: |
             Claude tự quét thị trường và cập nhật sổ kiến thức. Đọc báo cáo trong `reports/`, rồi merge nếu ổn.
           delete-branch: true
