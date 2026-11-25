@@ -21,4 +21,6 @@ description: Đọc số liệu Gumroad (lượt xem, đơn, doanh thu theo ngu�
 4. Rút tối đa 3 bài học, mỗi bài một câu có số, độ tin `cao` chỉ khi mỗi nhóm có từ 300 lượt xem:
    `python tools/kb.py hoc --chu-de kenh --bai-hoc "..." --bang-chung "2026-W48.csv" --do-tin thap --nguon kenh`
 5. Thí nghiệm đủ dữ liệu: `python tools/kb.py ket-thuc E-xxxx --ket-qua "..." --ket-luan thang|thua|chua-ro`.
+   Trước khi đóng, hỏi người dùng đã thật sự đổi chưa và từ ngày nào. "Ngày mở" trong sổ là ngày ghi, không phải ngày đổi.
+   Chưa đổi thì không đóng; đếm 14 ngày từ ngày đổi thật. Ví dụ ngày 25/11/2026 README Vutty vẫn chưa có nút Gumroad (E-0001).
 6. Báo người dùng: 3 con số chính, bài học (ID), 1 việc đổi tuần này.

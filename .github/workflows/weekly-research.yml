@@ -1,4 +1,5 @@
-# Mỗi sáng thứ Hai (8:17 giờ Việt Nam) Claude làm theo automation/nghien-cuu-dinh-ky.md và mở một pull request.
+# Mỗi sáng thứ Hai (8:17 giờ Việt Nam) Claude làm theo automation/nghien-cuu-dinh-ky.md.
+# Kết quả cộng dồn vào nhánh auto/nghien-cuu-hang-tuan và một pull request, kỳ chưa merge không bị mất.
 # Chưa thêm secret CLAUDE_CODE_OAUTH_TOKEN (hoặc ANTHROPIC_API_KEY) thì workflow tự bỏ qua, không báo lỗi.
 # Cách bật: docs/chia-se-va-tu-dong.md
 name: weekly-research
@@ -33,6 +34,15 @@ jobs:
 
       - uses: actions/checkout@v4
         if: steps.check.outputs.co_token == 'true'
+        with:
+          fetch-depth: 0
+
+      - name: Chuẩn bị nhánh (giữ các kỳ chưa merge, gộp main mới nhất)
+        if: steps.check.outputs.co_token == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bash automation/chuan-bi-nhanh.sh
 
       - uses: actions/setup-python@v5
         if: steps.check.outputs.co_token == 'true'
@@ -51,18 +61,13 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             Đọc và làm theo automation/nghien-cuu-dinh-ky.md.
-            Bạn đang chạy trong GitHub Actions: bỏ qua bước tạo nhánh, không commit, không push; workflow tự mở pull request.
+            Bạn đang chạy trong GitHub Actions: bỏ qua bước tạo nhánh, không commit, không push; workflow tự đẩy nhánh và mở pull request.
           claude_args: |
             --max-turns 80
             --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,Bash(python tools/kb.py:*),Bash(python -m pytest:*),Bash(python tools/soat_skill.py:*)"
 
-      - name: Mở pull request với các thay đổi
+      - name: Commit, đẩy nhánh, mở pull request nếu chưa có
         if: steps.check.outputs.co_token == 'true'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          branch: auto/nghien-cuu-hang-tuan
-          commit-message: "Nghiên cứu thị trường hằng tuần (tự động)"
-          title: "Nghiên cứu thị trường định kỳ"
-          body: |
-            Claude tự quét thị trường và cập nhật sổ kiến thức. Đọc báo cáo trong `reports/`, rồi merge nếu ổn.
-          delete-branch: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash automation/day-nhanh-va-mo-pr.sh

@@ -9,6 +9,8 @@ disable-model-invocation: true
 >
 > **Đã sửa ngày 2026-11-25:** đổi `name` thành `ext-email-sequence`, thêm `disable-model-invocation: true`, thêm khối ghi chú này. Phần còn lại giữ nguyên bản gốc tiếng Anh.
 >
+> **Liên kết trong bài:** skill được nhắc bằng tên gốc (ví dụ `pricing`, `copy-editing`) là `ext-<tên>` nếu có trong `.claude/skills/`, không có thì bỏ qua. File không chép về (`evals/`, file CSV, `CONNECTORS.md`, file của skill khác) không mở được: bỏ qua, đừng tải từ nơi khác.
+>
 > **Khi dùng cho Vutty, Vutidy:** đọc `knowledge/INDEX.md`, `knowledge/products/`, `knowledge/brand/brand-book.md` và `knowledge/rules/compliance.md` trước. Chỗ nào nhắc `.agents/product-marketing.md` hay `.agents/developer-audience-context.md` thì đọc hai file cùng tên trong `.agents/` của repo này (chúng trỏ về `knowledge/`). Agent chỉ soạn, người dùng tự đăng, tự nộp, tự gửi. Không tạo tài khoản, không đăng nhập, không mở hộp thư thay người dùng. Chuỗi email gửi người mua và người theo dõi trên Gumroad (Emails, Workflows). Agent soạn trong `content/`, người dùng tự gửi. Không có CRM hay kết nối email nào; bỏ qua phần nói về kết nối. Khi file này khác `CLAUDE.md`, làm theo `CLAUDE.md`.
 
 

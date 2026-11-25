@@ -27,8 +27,15 @@ Mọi cách chạy đều làm theo cùng một lời nhắc: `automation/nghien
 **Mỗi repo chỉ nên bật một lịch.** Mọi cách đều ghi vào cùng nhánh `auto/nghien-cuu-hang-tuan`, nên hai lịch cùng chạy sẽ
 giẫm lên nhau. Người khác muốn chạy thì chạy tay (`/gr-weekly-loop`), hoặc fork repo rồi đặt lịch trên bản fork.
 
-Ít khi vào repo? Đặt lịch hằng tháng thay vì hằng tuần, hoặc tắt lịch và chạy tay khi cần. Các kỳ chưa merge cộng dồn vào
-một pull request (cách A và C). Riêng cách B làm mới pull request mỗi lần, nên báo cáo kỳ trước mất nếu chưa merge.
+Ít khi vào repo? Đặt lịch hằng tháng thay vì hằng tuần, hoặc tắt lịch và chạy tay khi cần. Cả ba cách đều chạy
+`automation/chuan-bi-nhanh.sh` trước: các kỳ chưa merge cộng dồn vào một nhánh và một pull request, không kỳ nào bị mất.
+
+Đọc pull request rồi:
+- **Ổn:** merge. Kỳ sau bắt đầu lại từ `main`.
+- **Không muốn giữ:** đóng pull request **và xoá nhánh** `auto/nghien-cuu-hang-tuan` (nút Delete branch). Còn nhánh thì kỳ sau
+  lấy lại nội dung cũ.
+- **Báo xung đột** (main và nhánh cùng sửa một file): cách A tự gộp và ghi phần đã bỏ vào báo cáo. Cách B và C dừng ở
+  bước chuẩn bị nhánh cho tới khi bạn merge pull request cũ, hoặc gộp tay theo lệnh in trong lỗi.
 
 ### A. Lịch Claude trên cloud
 
@@ -52,22 +59,37 @@ mang tên GitHub của người tạo. Cần gói Pro, Max, Team hoặc Enterpri
    Tên `CLAUDE_CODE_OAUTH_TOKEN`, giá trị là token vừa chép.
 3. Settings → Actions → General → Workflow permissions: chọn "Read and write permissions" và tick
    "Allow GitHub Actions to create and approve pull requests".
-4. Tab Actions → `weekly-research` → Run workflow để thử một lần. Sau đó nó chạy mỗi sáng thứ Hai (8:17 giờ Việt Nam) và mở PR `auto/nghien-cuu-hang-tuan`.
+4. Tab Actions → `weekly-research` → Run workflow để thử một lần. Sau đó nó chạy mỗi sáng thứ Hai (8:17 giờ Việt Nam),
+   đẩy thêm vào nhánh `auto/nghien-cuu-hang-tuan` và mở PR nếu chưa có.
 5. Nếu bước Claude báo cần Claude GitHub App: mở Claude Code trong repo, gõ `/install-github-app`.
 
-Chưa có secret thì workflow tự bỏ qua, không báo lỗi. Tài liệu gốc: https://code.claude.com/docs/en/github-actions
+Chưa có secret thì workflow tự bỏ qua, không báo lỗi. Muốn chạy hằng tháng: sửa dòng `cron` trong workflow thành
+`"17 1 1 * *"` (qua pull request). Tài liệu gốc: https://code.claude.com/docs/en/github-actions
+
+PR do workflow mở bằng `GITHUB_TOKEN` nên GitHub không tự chạy workflow `tests` trên đó. Lần chạy đã tự chạy
+`pytest`; muốn thấy dấu xanh, bấm Close rồi Reopen pull request, hoặc đẩy một commit bằng tài khoản của bạn.
 
 ### C. Chạy trên máy chủ riêng
 
+Cần: git có quyền đẩy lên repo, Python 3.9 trở lên có `pytest` (`python3 -m pip install --user pytest`),
+Claude Code đã đăng nhập (`claude` chạy được), và tuỳ chọn `gh` đã `gh auth login` để script tự mở PR.
+
 ```bash
-git clone https://github.com/JavkVuong/agent.git && cd agent
-git fetch origin && (git checkout auto/nghien-cuu-hang-tuan && git merge --no-edit origin/main || git checkout -b auto/nghien-cuu-hang-tuan origin/main)
-claude -p "Đọc và làm theo automation/nghien-cuu-dinh-ky.md. Bỏ qua bước tạo nhánh. Không commit, không push." \
-  --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,Bash(python tools/kb.py:*),Bash(python -m pytest:*),Bash(python tools/soat_skill.py:*)"
-python -m pytest -q && git add -A && git commit -m "Nghiên cứu thị trường định kỳ" && git push -u origin HEAD
+git clone https://github.com/JavkVuong/agent.git ~/agent      # chỉ làm một lần
+cd ~/agent && bash automation/chay-tren-may-chu.sh            # chạy thử một lần
+crontab -e
 ```
 
-Đặt vào cron mỗi tuần hoặc mỗi tháng. Lần đầu, mở PR từ nhánh `auto/nghien-cuu-hang-tuan`; các lần sau PR tự có thêm commit.
+Thêm một dòng (giờ theo máy chủ). Mỗi sáng thứ Hai 8:17:
+
+```
+17 8 * * 1  cd ~/agent && bash automation/chay-tren-may-chu.sh >> ~/nghien-cuu.log 2>&1
+```
+
+Mỗi tháng thì đổi `* * 1` thành `1 * *`. Script lo hết: chuẩn bị nhánh, gọi Claude, chạy kiểm thử, commit, đẩy nhánh,
+mở PR nếu chưa có. Lỗi thì ghi lý do vào `~/nghien-cuu.log`; không có lệnh `gh` thì lần đầu tự mở PR trên GitHub.
+Lần chạy từ cron báo chưa đăng nhập (hay gặp trên macOS vì cron không mở được Keychain): chạy `claude setup-token`,
+rồi thêm dòng `CLAUDE_CODE_OAUTH_TOKEN=<token>` vào đầu crontab. Không ghi token vào repo.
 
 ## 3. Chia sẻ cho người khác
 

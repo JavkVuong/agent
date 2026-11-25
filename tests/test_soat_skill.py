@@ -1,10 +1,15 @@
-"""Kiểm thử tools/soat_skill.py trên repo tạm, và soát chính các skill của repo này."""
+"""Kiểm thử tools/soat_skill.py trên repo tạm, và soát chính các skill của repo này.
 
+Ký tự ẩn trong file này viết bằng mã \\u, để chính file kiểm thử không chứa ký tự ẩn.
+"""
+
+import os
 import sys
 from pathlib import Path
 
 GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC / "tools"))
+import pytest  # noqa: E402
 import soat_skill  # noqa: E402
 
 DAU_HOP_LE = "---\nname: ext-mau\ndescription: mẫu\ndisable-model-invocation: true\n---\n\n# Mẫu\n"
@@ -29,7 +34,7 @@ def test_skill_ngoai_hop_le_khong_loi(tmp_path):
 
 
 def test_bat_ky_tu_vo_hinh(tmp_path):
-    _tao(tmp_path, noi_dung=DAU_HOP_LE + "Đọc kỹ​.\nchữ\U000e0041ẩn\n")
+    _tao(tmp_path, noi_dung=DAU_HOP_LE + "Đọc kỹ\u200b.\nchữ\U000e0041ẩn\n")
     loi = soat_skill.soat(tmp_path).loi
     assert any("U+200B" in l for l in loi)
     assert any("U+E0041" in l for l in loi)
@@ -38,7 +43,7 @@ def test_bat_ky_tu_vo_hinh(tmp_path):
 def test_ky_tu_vo_hinh_trong_skill_gr_cung_bi_bat(tmp_path):
     skill = tmp_path / ".claude" / "skills" / "gr-mau"
     skill.mkdir(parents=True)
-    (skill / "SKILL.md").write_text("---\nname: gr-mau\n---\nchữ‮thường\n", encoding="utf-8")
+    (skill / "SKILL.md").write_text("---\nname: gr-mau\n---\nchữ\u202ethường\n", encoding="utf-8")
     assert any("U+202E" in l for l in soat_skill.soat(tmp_path).loi)
 
 
@@ -84,6 +89,29 @@ def test_main_tra_ma_loi(tmp_path, capsys):
     assert soat_skill.main(["--goc", str(tmp_path)]) == 1
     assert "Lỗi:" in capsys.readouterr().out
     assert soat_skill.main(["--goc", str(tmp_path / "khong-co")]) == 1
+
+
+def test_ky_tu_an_trong_file_agent_doc(tmp_path):
+    _tao(tmp_path)
+    (tmp_path / "knowledge" / "market").mkdir(parents=True)
+    (tmp_path / "knowledge" / "market" / "trends-log.md").write_text("Tin mới\u2066 ẩn\n", encoding="utf-8")
+    (tmp_path / "CLAUDE.md").write_text("\ufeff# Quy tắc\n", encoding="utf-8")
+    (tmp_path / "content").mkdir()
+    (tmp_path / "content" / "nhap.md").write_text("bản nháp\u200b\n", encoding="utf-8")  # content/ không soát
+    loi = soat_skill.soat(tmp_path).loi
+    assert any(l.startswith("knowledge/market/trends-log.md:1:") and "U+2066" in l for l in loi)
+    assert any(l.startswith("CLAUDE.md:1:") and "BOM" in l for l in loi)
+    assert not any("content/" in l for l in loi)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="tạo symlink trên Windows cần quyền quản trị")
+def test_skill_ngoai_khong_duoc_co_symlink(tmp_path):
+    skill = _tao(tmp_path)
+    bi_mat = tmp_path / "bi-mat.txt"
+    bi_mat.write_text("khoá\n", encoding="utf-8")
+    os.symlink(bi_mat, skill / "ghi-chu.md")
+    loi = soat_skill.soat(tmp_path).loi
+    assert any("ghi-chu.md" in l and "symlink" in l for l in loi)
 
 
 def test_skill_cua_repo_nay_sach():

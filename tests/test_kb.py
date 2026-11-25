@@ -53,6 +53,38 @@ def test_hoc_bai_hoc_trong(repo):
         kb.them_bai_hoc(repo, "x", "   ", "", "cao", "kenh")
 
 
+def test_thay_the_ma_sai_khong_ghi_gi(repo, capsys):
+    path = repo / "knowledge/learnings/LEARNINGS.md"
+    truoc = _doc(path)
+    assert kb.main(["--goc", str(repo), "hoc", "--chu-de", "gia", "--bai-hoc", "x", "--thay-the", "L-9999"]) == 1
+    assert "L-9999" in capsys.readouterr().err
+    assert _doc(path) == truoc  # không để lại bài học mới khi mã cũ sai
+
+
+def test_dong_thieu_cot_khong_lam_hong_lenh(repo):
+    path = repo / "knowledge/experiments/EXPERIMENTS.md"
+    path.write_text(_doc(path) + "| E-20261201-abcd | 2026-12-01 | sửa tay thiếu cột |\n", encoding="utf-8")
+    kb.tong_quan(repo)  # không ném IndexError
+    with pytest.raises(kb.ToolError, match="cần 8 cột"):
+        kb.dong_thi_nghiem(repo, "E-20261201-abcd", "x", "thang")
+
+
+def test_thay_the_dong_co_dau_gach_thua_khong_sua_nham(repo):
+    path = repo / "knowledge/learnings/LEARNINGS.md"
+    path.write_text(_doc(path) + "| L-20261201-dead | 2026-12-01 | gia | a | b | thua | cao | kenh | hieu-luc |\n",
+                    encoding="utf-8")
+    truoc = _doc(path)
+    with pytest.raises(kb.ToolError, match="cần 8 cột"):
+        kb.thay_the_bai_hoc(repo, "L-20261201-dead", "L-20261201-beef")
+    assert kb.main(["--goc", str(repo), "hoc", "--chu-de", "gia", "--bai-hoc", "x", "--thay-the", "L-20261201-dead"]) == 1
+    assert _doc(path) == truoc
+
+
+def test_ghi_file_giu_xuong_dong_lf(repo):
+    kb.them_bai_hoc(repo, "gia", "Một", "", "cao", "kenh")
+    assert b"\r\n" not in (repo / "knowledge/learnings/LEARNINGS.md").read_bytes()
+
+
 def test_thay_the_giu_bai_cu(repo):
     truoc = kb.tong_quan(repo)["bai_hoc_hieu_luc"]
     ma = kb.them_bai_hoc(repo, "noi-dung", "Bài mới", "", "cao", "kenh")
@@ -106,12 +138,36 @@ def test_cham_diem_ngoai_thang(tmp_path):
         kb.xep_hang_kenh(p)
 
 
-def test_xep_hang_mau(repo):
-    kq = kb.xep_hang_kenh(repo / "knowledge/market/channels.csv")
-    diem = [d for _, d, _ in kq]
-    assert diem == sorted(diem, reverse=True)
+def test_xep_hang_kenh(tmp_path):
+    p = tmp_path / "k.csv"
+    p.write_text(
+        "ten,khach_khop,y_dinh_mua,keo_dai,quy_mo,cong_suc,cho_phep_quang_ba,ghi_chu\n"
+        "Nhóm cấm,5,5,5,5,1,khong,\n"
+        "Trung bình,3,3,3,3,3,co,\n"
+        '"Qiita, Zenn",5,5,5,5,1,co,"có dấu phẩy, vẫn đọc đúng"\n',
+        encoding="utf-8")
+    kq = kb.xep_hang_kenh(p)
+    assert [t for t, _, _ in kq] == ["Qiita, Zenn", "Trung bình", "Nhóm cấm"]
     assert kq[-1][1] == 0 and "không cho" in kq[-1][2]
-    assert kq[0][0] in ("AlternativeTo (Termius)", "README GitHub")
+
+
+def test_channels_that_cham_duoc(repo):
+    # Sổ kênh thật đổi theo thời gian: chỉ kiểm tra đọc được và xếp đúng thứ tự.
+    diem = [d for _, d, _ in kb.xep_hang_kenh(repo / "knowledge/market/channels.csv")]
+    assert diem and diem == sorted(diem, reverse=True)
+
+
+@pytest.mark.parametrize("gia_tri, ket_qua", [
+    ("1,234", 1234), ("1.234.567", 1234567), ("1,234.50", 1234.5), ("1.234,50", 1234.5),
+    ("15,5", 15.5), ("$15", 15), ("15 USD", 15), (" 1 200 ", 1200), ("", 0), ("0,123", 0.123),
+])
+def test_doc_so_kieu_my_va_kieu_viet(gia_tri, ket_qua):
+    assert kb._so(gia_tri, "x", 2) == pytest.approx(ket_qua)
+
+
+def test_so_sai_bao_loi():
+    with pytest.raises(kb.ToolError, match="phải là số"):
+        kb._so("mười", "don", 3)
 
 
 def test_so_lieu_mau(repo):
@@ -120,6 +176,23 @@ def test_so_lieu_mau(repo):
     assert t["luot_xem"] == 420 and t["don"] == 6
     assert t["chuyen_doi_pct"] == 1.43
     assert [k for k, _ in kq["nhom"]] == ["github", "reddit", "direct", "discover"]
+
+
+def test_so_lieu_csv_cham_phay_va_dau_nghin(tmp_path):
+    # Excel bản tiếng Việt lưu CSV bằng dấu ';'.
+    p = tmp_path / "w.csv"
+    p.write_text("nguon;luot_xem;don;doanh_thu\ngithub;1.200.000;3;45,00\ngoogle;800;1;15\n", encoding="utf-8-sig")
+    t = kb.tom_tat_so_lieu(p)["tong"]
+    assert t["luot_xem"] == 1200800 and t["don"] == 4 and t["doanh_thu"] == 60
+
+
+def test_so_lieu_khong_phai_utf8(tmp_path, capsys):
+    p = tmp_path / "excel.csv"
+    p.write_bytes("nguon,luot_xem,don\nNhật,10,1\n".encode("utf-16"))
+    with pytest.raises(kb.ToolError, match="UTF-8"):
+        kb.tom_tat_so_lieu(p)
+    assert kb.main(["so-lieu", str(p)]) == 1
+    assert "UTF-8" in capsys.readouterr().err
 
 
 def test_so_lieu_thieu_cot(tmp_path):

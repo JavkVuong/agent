@@ -4,8 +4,9 @@
 Chỉ dùng thư viện chuẩn Python, không gửi gì ra mạng.
 
 Lỗi (trả về 1, phải sửa trước khi merge):
-    - ký tự vô hình hoặc đảo chiều chữ (zero-width, bidi, Unicode Tag) trong mọi skill
-    - skill ext-* có file không phải Markdown (script, JSON, CSV, nhị phân...)
+    - ký tự vô hình hoặc đảo chiều chữ (zero-width, bidi, Unicode Tag) trong mọi skill, và trong các file
+      mọi agent đều đọc: .claude/agents, knowledge/, automation/, .agents/, CLAUDE.md, AGENTS.md, GEMINI.md
+    - skill ext-* có file không phải Markdown (script, JSON, CSV, nhị phân...) hoặc có liên kết tượng trưng (symlink)
     - skill ext-* có allowed-tools hoặc hooks trong phần đầu SKILL.md
     - skill ext-* có lệnh chạy ngầm dạng !`lệnh`
     - skill ext-* thiếu LICENSE, thiếu disable-model-invocation: true, hoặc chưa ghi trong THIRD_PARTY.md
@@ -29,10 +30,15 @@ from pathlib import Path
 GOC = Path(__file__).resolve().parent.parent
 
 # Ký tự không hiện trên màn hình nhưng AI vẫn đọc được: zero-width, đảo chiều chữ, Unicode Tag.
+# Viết bằng mã \u để chính file này không chứa ký tự ẩn (GitHub cảnh báo file có ký tự đảo chiều).
 KY_TU_AN = re.compile(
-    "[​-‏‪-‮⁠-⁤⁦-⁩﻿\U000e0000-\U000e007f]"
+    "[\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff\U000e0000-\U000e007f]"
 )
 LENH_NGAM = re.compile(r"!`[^`]+`")
+# Ngoài skill, những file này cũng được agent đọc như lời dặn, nên cũng soát ký tự ẩn.
+FILE_AGENT_DOC = ("CLAUDE.md", "AGENTS.md", "GEMINI.md")
+THU_MUC_AGENT_DOC = (".claude/agents", "knowledge", "automation", ".agents")
+DUOI_CHU = {".md", ".csv", ".txt", ".json", ".yml", ".yaml"}
 FILE_DUOC_PHEP = {"LICENSE", "LICENSE.txt", "LICENSE.md", "NOTICE", "NOTICE.txt", "NOTICE.md"}
 MAU_CANH_BAO = [
     (re.compile(r"\bcurl\b|\bwget\b", re.I), "tải từ mạng"),
@@ -72,6 +78,32 @@ def _ten_trong_third_party(goc: Path) -> set[str]:
     return set(re.findall(r"`(ext-[a-z0-9-]+)`", path.read_text(encoding="utf-8")))
 
 
+def _soat_ky_tu_an(f: Path, goc: Path, kq: KetQua) -> str | None:
+    """Đọc file, ghi lỗi nếu không phải UTF-8 hoặc có ký tự ẩn. Trả về nội dung, hoặc None nếu không đọc được."""
+    rel = f.relative_to(goc).as_posix()
+    try:
+        text = f.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        kq.loi.append(f"{rel}: không đọc được dạng chữ UTF-8. Lưu lại dạng UTF-8 hoặc xoá file nhị phân.")
+        return None
+    for so, dong in enumerate(text.splitlines(), 1):
+        an = KY_TU_AN.findall(dong)
+        if an:
+            ma = ", ".join(sorted({f"U+{ord(c):04X}" for c in an}))
+            goi_y = " (U+FEFF ở dòng 1 là BOM: lưu lại dạng UTF-8 không BOM)" if "\ufeff" in an and so == 1 else ""
+            kq.loi.append(f"{rel}:{so}: có ký tự vô hình ({ma}){goi_y}. Xoá ký tự đó rồi đọc lại dòng này.")
+    return text
+
+
+def _soat_file_agent_doc(goc: Path, kq: KetQua) -> None:
+    files = [goc / ten for ten in FILE_AGENT_DOC if (goc / ten).is_file()]
+    for thu_muc in THU_MUC_AGENT_DOC:
+        if (goc / thu_muc).is_dir():
+            files += [p for p in (goc / thu_muc).rglob("*") if p.is_file() and p.suffix.lower() in DUOI_CHU]
+    for f in sorted(files):
+        _soat_ky_tu_an(f, goc, kq)
+
+
 def soat(goc: Path) -> KetQua:
     """Soát mọi skill trong goc/.claude/skills và trả về danh sách lỗi, cảnh báo."""
     thu_muc = goc / ".claude" / "skills"
@@ -85,6 +117,9 @@ def soat(goc: Path) -> KetQua:
         ngoai = skill.name.startswith("ext-")
         kq.so_skill_ngoai += ngoai
         ten = f".claude/skills/{skill.name}"
+        if ngoai and skill.is_symlink():
+            kq.loi.append(f"{ten}: skill ngoài không được là liên kết tượng trưng (symlink). Chép thư mục thật vào.")
+            continue
 
         if not (skill / "SKILL.md").exists():
             kq.loi.append(f"{ten}: thiếu SKILL.md.")
@@ -94,24 +129,21 @@ def soat(goc: Path) -> KetQua:
             if skill.name not in da_ghi:
                 kq.loi.append(f"{ten}: chưa ghi trong THIRD_PARTY.md (nguồn, commit, giấy phép).")
 
-        for f in sorted(p for p in skill.rglob("*") if p.is_file()):
+        for f in sorted(skill.rglob("*")):
             rel = f.relative_to(goc).as_posix()
+            if ngoai and f.is_symlink():
+                kq.loi.append(f"{rel}: skill ngoài không được có liên kết tượng trưng (symlink). Xoá nó, chép file thật nếu cần.")
+                continue
+            if not f.is_file():
+                continue
             if ngoai and f.suffix.lower() != ".md" and f.name not in FILE_DUOC_PHEP:
                 kq.loi.append(f"{rel}: skill ngoài chỉ được chứa Markdown. Xoá file này hoặc chép nội dung cần dùng vào file .md.")
                 continue
-            try:
-                text = f.read_text(encoding="utf-8")
-            except UnicodeDecodeError:
-                kq.loi.append(f"{rel}: không đọc được dạng chữ UTF-8. Xoá file nhị phân khỏi skill.")
+            text = _soat_ky_tu_an(f, goc, kq)
+            if text is None or not ngoai:
                 continue
 
             for so, dong in enumerate(text.splitlines(), 1):
-                an = KY_TU_AN.findall(dong)
-                if an:
-                    ma = ", ".join(sorted({f"U+{ord(c):04X}" for c in an}))
-                    kq.loi.append(f"{rel}:{so}: có ký tự vô hình ({ma}). Xoá ký tự đó rồi đọc lại dòng này.")
-                if not ngoai:
-                    continue
                 if LENH_NGAM.search(dong):
                     kq.loi.append(f"{rel}:{so}: có lệnh chạy ngầm dạng !`...`. Xoá dòng này.")
                 for mau, nghia in MAU_CANH_BAO:
@@ -128,6 +160,7 @@ def soat(goc: Path) -> KetQua:
                     kq.loi.append(f"{rel}: thêm dòng 'disable-model-invocation: true' vào phần đầu.")
                 if not re.search(rf"^name\s*:\s*{re.escape(skill.name)}\s*$", dau, re.M):
                     kq.loi.append(f"{rel}: dòng name phải là '{skill.name}' (trùng tên thư mục).")
+    _soat_file_agent_doc(goc, kq)
     return kq
 
 

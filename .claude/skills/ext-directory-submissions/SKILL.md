@@ -10,6 +10,8 @@ disable-model-invocation: true
 >
 > **Đã sửa ngày 2026-11-25:** đổi `name` thành `ext-directory-submissions`, thêm `disable-model-invocation: true`, thêm khối ghi chú này; bỏ `evals/evals.json`, `references/submission-tracker-template.csv`. Phần còn lại giữ nguyên bản gốc tiếng Anh.
 >
+> **Liên kết trong bài:** skill được nhắc bằng tên gốc (ví dụ `pricing`, `copy-editing`) là `ext-<tên>` nếu có trong `.claude/skills/`, không có thì bỏ qua. File không chép về (`evals/`, file CSV, `CONNECTORS.md`, file của skill khác) không mở được: bỏ qua, đừng tải từ nơi khác.
+>
 > **Khi dùng cho Vutty, Vutidy:** đọc `knowledge/INDEX.md`, `knowledge/products/`, `knowledge/brand/brand-book.md` và `knowledge/rules/compliance.md` trước. Chỗ nào nhắc `.agents/product-marketing.md` hay `.agents/developer-audience-context.md` thì đọc hai file cùng tên trong `.agents/` của repo này (chúng trỏ về `knowledge/`). Agent chỉ soạn, người dùng tự đăng, tự nộp, tự gửi. Không tạo tài khoản, không đăng nhập, không mở hộp thư thay người dùng. Chỉ dùng phần chọn danh bạ, bộ nội dung nộp (listing kit) và bảng theo dõi. Ưu tiên danh bạ cho công cụ dev, app Mac, mã nguồn mở (AlternativeTo, OpenAlternative...); bỏ G2, Capterra và danh bạ SaaS trả tiền. Bảng theo dõi ghi vào `content/`, không ghi vào `.agents/`. Bỏ qua hai mục 'When an Agent Does the Submitting' và 'Filling Web Forms with Browser or Computer Use': ở repo này agent không tự nộp, người dùng nộp bằng bộ nội dung agent soạn. Bỏ qua 'Reviews Playbook' (G2, Capterra không hợp với app mã nguồn mở bán một lần). Khi file này khác `CLAUDE.md`, làm theo `CLAUDE.md`.
 
 
