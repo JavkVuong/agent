@@ -1,0 +1,4 @@
+# Sổ bài học và nhật ký thị trường chỉ thêm dòng: khi hai nhánh cùng thêm, git giữ cả hai thay vì báo xung đột.
+knowledge/learnings/LEARNINGS.md merge=union
+knowledge/market/trends-log.md merge=union
+* text=auto eol=lf

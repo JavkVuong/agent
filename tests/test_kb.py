@@ -1,5 +1,6 @@
 """Kiểm thử tools/kb.py trên một bản sao sổ kiến thức tạm."""
 
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -23,9 +24,23 @@ def _doc(p):
 
 def test_hoc_tang_id_va_lam_sach_o(repo):
     ma = kb.them_bai_hoc(repo, "gia", "Trả tuỳ ý | thắng\ngiá cố định", "W48", "cao", "kenh", "2026-11-30")
-    assert ma == "L-0006"
+    assert re.fullmatch(r"L-20261130-[0-9a-f]{4}", ma)
     text = _doc(repo / "knowledge/learnings/LEARNINGS.md")
-    assert "| L-0006 | 2026-11-30 | gia | Trả tuỳ ý / thắng giá cố định | W48 | cao | kenh | hieu-luc |" in text
+    assert f"| {ma} | 2026-11-30 | gia | Trả tuỳ ý / thắng giá cố định | W48 | cao | kenh | hieu-luc |" in text
+
+
+def test_id_khong_trung_khi_ngau_nhien_lap(repo, monkeypatch):
+    gia_tri = iter(["aaaa", "aaaa", "bbbb"])
+    monkeypatch.setattr(kb.secrets, "token_hex", lambda n: next(gia_tri))
+    a = kb.them_bai_hoc(repo, "gia", "Một", "", "cao", "kenh", "2026-11-30")
+    b = kb.them_bai_hoc(repo, "gia", "Hai", "", "cao", "kenh", "2026-11-30")
+    assert (a, b) == ("L-20261130-aaaa", "L-20261130-bbbb")
+
+
+def test_id_cu_van_dung_duoc(repo):
+    ma = kb.them_bai_hoc(repo, "gia", "Mới", "", "cao", "kenh")
+    kb.thay_the_bai_hoc(repo, "L-0001", ma)
+    assert f"thay-the bởi {ma}" in _doc(repo / "knowledge/learnings/LEARNINGS.md")
 
 
 def test_hoc_do_tin_sai(repo):
@@ -50,7 +65,7 @@ def test_thay_the_giu_bai_cu(repo):
 
 def test_thi_nghiem_mo_dong_tao_bai_hoc(repo):
     ma = kb.mo_thi_nghiem(repo, "Gói đôi bán chạy hơn", "14 ngày", "doanh thu", "+20%", "2026-11-25")
-    assert ma == "E-0003"
+    assert re.fullmatch(r"E-20261125-[0-9a-f]{4}", ma)
     assert len(kb.tong_quan(repo)["thi_nghiem_dang_chay"]) == 3
     bai = kb.dong_thi_nghiem(repo, ma, "trước 45 USD, sau 40 USD", "thua", "2026-12-09")
     text = _doc(repo / "knowledge/learnings/LEARNINGS.md")
@@ -123,11 +138,12 @@ def test_main_cac_lenh(repo, capsys):
     g = ["--goc", str(repo), "--ngay", "2026-11-26"]
     assert kb.main(g + ["hoc", "--chu-de", "kenh", "--bai-hoc", "README kéo khách"]) == 0
     assert kb.main(g + ["thu-nghiem", "--gia-thuyet", "a", "--cach-thu", "b", "--chi-so", "c", "--nguong", "d"]) == 0
-    assert kb.main(g + ["ket-thuc", "E-0003", "--ket-qua", "x", "--ket-luan", "chua-ro"]) == 0
+    ma_tn = re.search(r"Đã mở thí nghiệm (E-\S+)\.", capsys.readouterr().out).group(1)
+    assert kb.main(g + ["ket-thuc", ma_tn, "--ket-qua", "x", "--ket-luan", "chua-ro"]) == 0
     assert kb.main(g + ["cu"]) == 0
     assert kb.main(g + ["cham-diem"]) == 0
     assert kb.main(g + ["so-lieu", str(repo / "knowledge/performance/mau.csv")]) == 0
     assert kb.main(g + ["tong-quan"]) == 0
     out = capsys.readouterr().out
-    assert "Đã ghi bài học L-0006" in out and "Mọi file kiến thức còn hạn." in out
+    assert "Mọi file kiến thức còn hạn." in out
     assert "chuyển đổi 1.43%" in out
