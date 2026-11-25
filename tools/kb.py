@@ -19,6 +19,7 @@ import argparse
 import csv
 import datetime as dt
 import re
+import secrets
 import sys
 from pathlib import Path
 
@@ -77,9 +78,17 @@ def _dong_bang(text: str, tien_to: str) -> list[list[str]]:
     return hang
 
 
-def _id_tiep(text: str, tien_to: str) -> str:
-    so = [int(m) for m in re.findall(rf"^\| {tien_to}-(\d+) ", text, flags=re.M)]
-    return f"{tien_to}-{(max(so) if so else 0) + 1:04d}"
+def _id_moi(text: str, tien_to: str, ngay: dt.date) -> str:
+    """ID gồm ngày và 4 ký tự ngẫu nhiên, ví dụ L-20261125-3f9a.
+
+    Nhiều người hoặc nhiều máy chủ ghi cùng lúc trên các nhánh khác nhau vẫn không trùng ID,
+    nên khi gộp nhánh chỉ cần giữ cả hai dòng.
+    """
+    for _ in range(50):
+        ma = f"{tien_to}-{ngay.strftime('%Y%m%d')}-{secrets.token_hex(2)}"
+        if f"| {ma} |" not in text:
+            return ma
+    raise ToolError("Không tạo được ID mới. Thử chạy lại lệnh.")
 
 
 def _dam_bao_bang(path: Path, tieu_de_file: str, tieu_de_bang: str) -> str:
@@ -108,8 +117,9 @@ def them_bai_hoc(goc: Path, chu_de: str, bai_hoc: str, bang_chung: str, do_tin: 
         raise ToolError("Bài học đang trống. Viết một câu nói rõ điều đã học.")
     path = goc / "knowledge" / "learnings" / "LEARNINGS.md"
     text = _dam_bao_bang(path, "# Sổ bài học", TIEU_DE_BAI_HOC)
-    ma = _id_tiep(text, "L")
-    dong = (f"| {ma} | {_hom_nay(ngay).isoformat()} | {_o(chu_de)} | {_o(bai_hoc)} | "
+    hom_nay = _hom_nay(ngay)
+    ma = _id_moi(text, "L", hom_nay)
+    dong = (f"| {ma} | {hom_nay.isoformat()} | {_o(chu_de)} | {_o(bai_hoc)} | "
             f"{_o(bang_chung) or '-'} | {do_tin} | {_o(nguon) or '-'} | hieu-luc |")
     _ghi(path, _them_dong(text, dong))
     return ma
@@ -138,8 +148,9 @@ def mo_thi_nghiem(goc: Path, gia_thuyet: str, cach_thu: str, chi_so: str, nguong
                   ngay: str | None = None) -> str:
     path = goc / "knowledge" / "experiments" / "EXPERIMENTS.md"
     text = _dam_bao_bang(path, "# Sổ thí nghiệm", TIEU_DE_THI_NGHIEM)
-    ma = _id_tiep(text, "E")
-    dong = (f"| {ma} | {_hom_nay(ngay).isoformat()} | {_o(gia_thuyet)} | {_o(cach_thu)} | "
+    hom_nay = _hom_nay(ngay)
+    ma = _id_moi(text, "E", hom_nay)
+    dong = (f"| {ma} | {hom_nay.isoformat()} | {_o(gia_thuyet)} | {_o(cach_thu)} | "
             f"{_o(chi_so)} | {_o(nguong)} | dang-chay | - |")
     _ghi(path, _them_dong(text, dong))
     return ma

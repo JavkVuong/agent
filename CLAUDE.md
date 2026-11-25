@@ -36,6 +36,14 @@ Gồm các agent (`.claude/agents/`), các skill (`.claude/skills/gr-*`) và s�
 - Luôn nói rõ mình là tác giả. Không tài khoản ảo, không đánh giá giả, không nhờ upvote.
 - Đọc luật từng cộng đồng trước khi đăng.
 
+## Nhiều người, nhiều máy, chạy tự động
+
+- Làm trên nhánh riêng (`auto/...` cho lần chạy tự động, tên bất kỳ cho người), mở pull request. Không đẩy thẳng lên `main`.
+- Mã bài học và thí nghiệm do `tools/kb.py` tạo (ngày + 4 ký tự ngẫu nhiên), không bao giờ trùng giữa các máy. Không tự đặt mã.
+- Lần chạy không có người (GitHub Actions, cron): không hỏi lại, ghi câu hỏi vào báo cáo trong `reports/`.
+- Không ghi token, mật khẩu, email khách hàng vào repo.
+- AI không phải Claude đọc `AGENTS.md`. Hướng dẫn chia sẻ và chạy tự động: `docs/chia-se-va-tu-dong.md`.
+
 ## Kiểm thử
 
 `tools/kb.py` chỉ dùng thư viện chuẩn Python (3.9 trở lên). Chạy `python -m pytest` trước khi đẩy code.

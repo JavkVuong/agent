@@ -1,0 +1,73 @@
+# Mỗi sáng thứ Hai (8:17 giờ Việt Nam) Claude quét thị trường, cập nhật knowledge/ và mở một pull request.
+# Chưa thêm secret CLAUDE_CODE_OAUTH_TOKEN (hoặc ANTHROPIC_API_KEY) thì workflow tự bỏ qua, không báo lỗi.
+# Cách bật: docs/chia-se-va-tu-dong.md
+name: weekly-research
+
+on:
+  schedule:
+    - cron: "17 1 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Kiểm tra đã có token chưa
+        id: check
+        env:
+          OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          APIKEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$OAUTH" ] || [ -n "$APIKEY" ]; then
+            echo "co_token=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "co_token=false" >> "$GITHUB_OUTPUT"
+            echo "Chưa có secret CLAUDE_CODE_OAUTH_TOKEN hoặc ANTHROPIC_API_KEY, bỏ qua lần chạy này."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.co_token == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.co_token == 'true'
+        with:
+          python-version: "3.12"
+
+      - run: pip install pytest
+        if: steps.check.outputs.co_token == 'true'
+
+      - name: Claude quét thị trường và cập nhật sổ kiến thức
+        if: steps.check.outputs.co_token == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Đọc CLAUDE.md và knowledge/INDEX.md. Đây là lần chạy tự động hằng tuần, không có người trả lời câu hỏi.
+            1. Làm theo .claude/skills/gr-market-scan/SKILL.md.
+            2. Chạy `python tools/kb.py cu`; với file quá hạn trong knowledge/market hoặc knowledge/products, nghiên cứu lại và cập nhật.
+            3. Ghi bài học mới (nếu có) bằng `python tools/kb.py hoc`.
+            4. Viết báo cáo ngắn bằng tiếng Việt ở reports/<năm>-W<tuần>.md: 3 điều mới, 1 cơ hội, việc người dùng nên làm tuần này.
+            5. Chạy `python -m pytest -q`.
+            Chỉ sửa file trong repo. Không commit, không push, không đăng bài ở đâu cả.
+          claude_args: |
+            --max-turns 80
+            --allowedTools "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,Bash(python tools/kb.py:*),Bash(python -m pytest:*)"
+
+      - name: Mở pull request với các thay đổi
+        if: steps.check.outputs.co_token == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: auto/nghien-cuu-hang-tuan
+          commit-message: "Nghiên cứu thị trường hằng tuần (tự động)"
+          title: "Nghiên cứu thị trường hằng tuần"
+          body: |
+            Claude tự quét thị trường và cập nhật sổ kiến thức. Đọc báo cáo trong `reports/`, rồi merge nếu ổn.
+          delete-branch: true

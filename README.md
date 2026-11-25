@@ -46,6 +46,14 @@ Skill (gõ `/tên-skill` trong Claude Code):
 
 Agent chỉ soạn. Bạn tự đăng bài, tự sửa trang Gumroad, tự gửi email.
 
+## Chạy tự động và chia sẻ
+
+- **Tự động mỗi tuần:** `.github/workflows/weekly-research.yml` quét thị trường mỗi sáng thứ Hai và mở pull request
+  cập nhật `knowledge/`. Cần thêm một secret để bật. Hoặc chạy theo lịch của Claude trên cloud, hoặc cron trên máy chủ riêng.
+- **Chia sẻ:** thêm người qua Settings → Collaborators. Họ dùng Claude Code hoặc AI khác (Codex, Cursor, Gemini CLI đọc `AGENTS.md`)
+  với tài khoản của chính họ, làm trên nhánh riêng và mở PR.
+- Chi tiết từng bước: [docs/chia-se-va-tu-dong.md](docs/chia-se-va-tu-dong.md).
+
 ## Sổ kiến thức (`knowledge/`)
 
 Đọc `knowledge/INDEX.md`. Quan trọng nhất: `learnings/LEARNINGS.md` (bài học), `experiments/EXPERIMENTS.md`
@@ -57,7 +65,7 @@ Chỉ cần Python 3.9 trở lên, không cài thêm gì.
 
 | Lệnh | Việc |
 |---|---|
-| `python tools/kb.py hoc --chu-de gia --bai-hoc "..." --do-tin cao` | Ghi bài học (`--thay-the L-0003` để thay bài cũ) |
+| `python tools/kb.py hoc --chu-de gia --bai-hoc "..." --do-tin cao` | Ghi bài học, mã dạng `L-20261201-3f9a` (`--thay-the L-0003` để thay bài cũ) |
 | `python tools/kb.py thu-nghiem --gia-thuyet ... --cach-thu ... --chi-so ... --nguong ...` | Mở thí nghiệm |
 | `python tools/kb.py ket-thuc E-0001 --ket-qua "..." --ket-luan thang` | Đóng thí nghiệm, tự ghi bài học |
 | `python tools/kb.py cu` | File kiến thức nào quá hạn, cần nghiên cứu lại |
