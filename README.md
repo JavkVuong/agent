@@ -34,6 +34,20 @@ Skill (gõ `/tên-skill` trong Claude Code):
 | `gr-sales-review` | Đọc số liệu Gumroad và GitHub |
 | `gr-growth-plan` | Định hướng đầu tháng |
 | `gr-learn` | Ghi và rà soát bài học |
+| `gr-skill-scout` | Đầu tháng: dò skill mới của cộng đồng, soát an toàn, đề xuất |
+
+Skill ngoài (`ext-*`, tiếng Anh, chép từ cộng đồng, chỉ chạy khi gọi tên hoặc khi skill `gr-*` dẫn tới):
+
+| Skill | Lấy từ | Dùng cho |
+|---|---|---|
+| `ext-cro`, `ext-copywriting`, `ext-copy-editing`, `ext-offers`, `ext-pricing` | marketingskills (MIT) | Trang Gumroad: chẩn đoán, câu chữ, lý do trả tiền, giá |
+| `ext-launch`, `ext-directory-submissions` | marketingskills (MIT) | Khung ra mắt, danh bạ nên nộp |
+| `ext-marketing-loops` | marketingskills (MIT) | Tờ kiểm cho vòng làm việc tự động |
+| `ext-hacker-news-strategy`, `ext-reddit-engagement` | devmarketing-skills (MIT) | Hacker News, Reddit |
+| `ext-github-presence`, `ext-open-source-marketing` | devmarketing-skills (MIT) | README, tăng trưởng dự án mã nguồn mở |
+| `ext-email-sequence`, `ext-kb-article`, `ext-draft-response` | Anthropic (Apache-2.0) | Email người mua, FAQ, thư trả lời khách |
+
+Nguồn, commit và giấy phép: [THIRD_PARTY.md](THIRD_PARTY.md). Vì sao chọn những skill này: [báo cáo nghiên cứu](docs/nghien-cuu/bo-skill-marketing-2026-11.md).
 
 ## Cách dùng
 
@@ -48,8 +62,9 @@ Agent chỉ soạn. Bạn tự đăng bài, tự sửa trang Gumroad, tự gửi
 
 ## Chạy tự động và chia sẻ
 
-- **Tự động mỗi tuần:** `.github/workflows/weekly-research.yml` quét thị trường mỗi sáng thứ Hai và mở pull request
-  cập nhật `knowledge/`. Cần thêm một secret để bật. Hoặc chạy theo lịch của Claude trên cloud, hoặc cron trên máy chủ riêng.
+- **Tự động định kỳ:** mọi cách chạy làm theo một lời nhắc chung, `automation/nghien-cuu-dinh-ky.md`, và cộng dồn kết quả
+  vào nhánh `auto/nghien-cuu-hang-tuan`. Chọn một trong ba: lịch Claude trên cloud (mỗi người tự tạo trên tài khoản của mình),
+  GitHub Actions (`.github/workflows/weekly-research.yml`, cần một secret), hoặc cron trên máy chủ riêng. Mỗi repo chỉ bật một lịch.
 - **Chia sẻ:** thêm người qua Settings → Collaborators. Họ dùng Claude Code hoặc AI khác (Codex, Cursor, Gemini CLI đọc `AGENTS.md`)
   với tài khoản của chính họ, làm trên nhánh riêng và mở PR.
 - Chi tiết từng bước: [docs/chia-se-va-tu-dong.md](docs/chia-se-va-tu-dong.md).
@@ -72,5 +87,7 @@ Chỉ cần Python 3.9 trở lên, không cài thêm gì.
 | `python tools/kb.py cham-diem` | Xếp hạng kênh quảng bá trong `knowledge/market/channels.csv` (kênh cấm tự quảng bá được 0 điểm) |
 | `python tools/kb.py so-lieu file.csv --nhom-theo nguon` | Lượt xem, đơn, doanh thu, tỷ lệ chuyển đổi theo nguồn khách |
 | `python tools/kb.py tong-quan` | Tình trạng sổ |
+
+Soát skill trước khi merge: `python tools/soat_skill.py` (ký tự ẩn, script, hook, thiếu giấy phép, thiếu nguồn).
 
 Kiểm thử: `python -m pytest`.

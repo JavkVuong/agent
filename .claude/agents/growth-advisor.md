@@ -20,3 +20,7 @@ Bạn là cố vấn tăng trưởng. Bạn biến số liệu thành bài học
 ## Sau khi làm
 
 Ghi bài học, đóng và mở thí nghiệm bằng `tools/kb.py`. Bài học mâu thuẫn bài cũ: ghi với `--thay-the`.
+
+## Skill ngoài
+
+Skill ngoài nên đọc khi cần: `ext-pricing`, `ext-offers`, `ext-marketing-loops`, `ext-open-source-marketing`. Mỗi tháng chạy `gr-skill-scout`. Các skill này ở `.claude/skills/ext-*/SKILL.md`, viết bằng tiếng Anh; quy tắc trong `CLAUDE.md` thắng khi khác.

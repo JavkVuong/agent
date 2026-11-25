@@ -18,6 +18,9 @@ description: Kiểm tra trang bán, bài viết, bài ra mắt trước khi đă
 | 7 | Đúng luật tự quảng bá của kênh (đã mở trang luật)? | KHONG_DANG nếu cấm |
 | 8 | Có đánh giá, lời khen giả, nhờ upvote, tài khoản ảo? | KHONG_DANG |
 | 9 | Số liệu (dung lượng dọn, tốc độ, số người dùng) có nguồn hoặc cách đo? | SUA_ROI_DANG |
+| 10 | Có từ so sánh nhất ("best", "fastest", "only", "first") mà không kèm bằng chứng hay phạm vi? | SUA_ROI_DANG |
+| 11 | Có trích lời khen, lời chứng thực mà không ghi ai nói và chưa được người đó đồng ý? | SUA_ROI_DANG |
+| 12 | Có đoạn viết lại quá sát bài, trang của người khác (nguy cơ bản quyền)? | SUA_ROI_DANG |
 
 ## Đầu ra
 
@@ -27,3 +30,6 @@ Kết luận: DUOC_DANG | SUA_ROI_DANG | KHONG_DANG
 ```
 
 Lỗi gặp lần thứ hai: thêm vào `compliance.md`, ghi bài học `--chu-de luat`.
+
+Mục 10 đến 12 lấy ý từ lượt rà "Legal and Compliance Flags" trong skill brand-review của Anthropic (Apache-2.0, xem `THIRD_PARTY.md`).
+Khi cần sửa câu chữ, xem thêm `.claude/skills/ext-copy-editing/SKILL.md`.

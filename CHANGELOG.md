@@ -1,5 +1,20 @@
 # Nhật ký thay đổi
 
+## 25/11/2026: thêm 15 skill mạnh của cộng đồng, lịch chạy dùng chung
+
+- 15 skill ngoài `ext-*` lấp chỗ `gr-*` còn thiếu: chẩn đoán trang bán, câu chữ, lý do trả tiền, giá, khung ra mắt, danh bạ nên nộp,
+  Hacker News, Reddit, README, tăng trưởng dự án mã nguồn mở, chuỗi email, FAQ, thư trả lời khách.
+  Lấy từ marketingskills (MIT, 60 nghìn sao), devmarketing-skills (MIT) và Anthropic (Apache-2.0). Chỉ chép Markdown, giữ LICENSE gốc,
+  ghim commit trong `THIRD_PARTY.md`. Skill ngoài không tự chạy; `gr-*` dẫn tới khi cần.
+- `python tools/soat_skill.py` soát skill trước khi merge: ký tự ẩn, lệnh chạy ngầm, script, hook, `allowed-tools`, thiếu giấy phép hay nguồn.
+  Kiểm thử chạy nó trên chính repo, nên quên giấy phép là CI báo đỏ.
+- Skill `gr-skill-scout` dò skill mới mỗi tháng từ 7 nguồn, soát an toàn, chỉ đề xuất. `gr-compliance-check` thêm 3 mục:
+  từ so sánh nhất không bằng chứng, lời chứng thực chưa xin phép, đoạn viết lại quá sát bài người khác.
+- Mọi cách chạy tự động dùng chung lời nhắc `automation/nghien-cuu-dinh-ky.md` và cộng dồn vào một nhánh, nên ít vào repo
+  cũng không bị nhiều pull request. Hướng dẫn tự đặt lịch Claude cho từng người trong `docs/chia-se-va-tu-dong.md`.
+- Kiểm thử không còn phụ thuộc số bài học và ngày cập nhật thật trong sổ, nên lần chạy định kỳ ghi sổ không làm CI đỏ.
+- Báo cáo nghiên cứu: `docs/nghien-cuu/bo-skill-marketing-2026-11.md`. 26 kiểm thử.
+
 ## 25/11/2026: chạy tự động và chia sẻ
 
 - Workflow `weekly-research` quét thị trường mỗi sáng thứ Hai (8:17 giờ Việt Nam) và mở pull request. Chưa có secret thì tự bỏ qua.

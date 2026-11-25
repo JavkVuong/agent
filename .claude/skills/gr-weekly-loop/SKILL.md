@@ -23,3 +23,6 @@ Vòng học liên tục: **nghiên cứu → làm → đo → học → làm t�
    - Việc người dùng phải tự làm (đăng bài dưới tên họ, chép số liệu, phát hành bản mới).
 
 Ngày đầu tháng: thêm `gr-growth-plan` và `gr-learn`.
+
+Tờ kiểm để rà vòng tuần (điều kiện dừng, điểm chờ người, nhật ký): `.claude/skills/ext-marketing-loops/SKILL.md`.
+Đầu tháng chạy thêm `gr-skill-scout` để tìm skill mới đáng lấy.

@@ -16,3 +16,10 @@ description: Chuẩn bị bài ra mắt cho một kênh cụ thể - Show HN, su
 5. Chọn ngày giờ đăng theo khán giả (Show HN: sáng thứ Ba đến thứ Năm giờ bờ Đông Mỹ là thói quen phổ biến, chưa kiểm chứng cho kênh này).
 6. `gr-compliance-check`, lưu ở `content/launch-<kenh>-YYYY-MM-DD.md`.
 7. Sau 7 ngày: ghi kết quả (lượt xem, sao, đơn theo `ref`) thành bài học `--chu-de kenh`.
+
+## Tham khảo thêm (skill ngoài)
+
+- Khung và thứ tự ra mắt: `.claude/skills/ext-launch/SKILL.md`.
+- Danh bạ nên nộp, bộ nội dung nộp: `.claude/skills/ext-directory-submissions/SKILL.md`.
+- Hacker News: `.claude/skills/ext-hacker-news-strategy/SKILL.md`. Reddit: `.claude/skills/ext-reddit-engagement/SKILL.md`.
+- Quy tắc trong file này và `CLAUDE.md` thắng khi khác với skill ngoài.
