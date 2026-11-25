@@ -44,6 +44,8 @@ Gồm các agent (`.claude/agents/`), các skill (`.claude/skills/gr-*`) và s�
 - Không ghi token, mật khẩu, email khách hàng vào repo.
 - AI không phải Claude đọc `AGENTS.md`. Hướng dẫn chia sẻ và chạy tự động: `docs/chia-se-va-tu-dong.md`.
 - Lời nhắc chung cho mọi lần chạy định kỳ: `automation/nghien-cuu-dinh-ky.md`. Mỗi repo chỉ bật một lịch.
+  Script dùng chung: `automation/chuan-bi-nhanh.sh` (lấy nhánh cũ, gộp `main`), `automation/day-nhanh-va-mo-pr.sh`,
+  `automation/chay-tren-may-chu.sh` (cron). Sửa script thì sửa cả `tests/test_automation_scripts.py`.
 
 ## Skill ngoài (`ext-*`)
 
@@ -55,5 +57,7 @@ Gồm các agent (`.claude/agents/`), các skill (`.claude/skills/gr-*`) và s�
 
 ## Kiểm thử
 
-`tools/kb.py` và `tools/soat_skill.py` chỉ dùng thư viện chuẩn Python (3.9 trở lên). Chạy `python -m pytest` trước khi đẩy code.
+`tools/kb.py` và `tools/soat_skill.py` chỉ dùng thư viện chuẩn Python (3.9 trở lên: macOS có sẵn 3.9, nên không dùng
+tính năng của 3.10 trở đi như `match`, `Path.write_text(newline=...)`). CI chạy Ubuntu và Windows, Python 3.9 và 3.12.
+Chạy `python -m pytest` trước khi đẩy code.
 Ghi thay đổi vào đầu `CHANGELOG.md`.

@@ -2,6 +2,7 @@
 
 Mỗi hướng mới thử nhỏ trước: tối đa 14 ngày, 0 đồng, đổi một thứ. Mở bằng `python tools/kb.py thu-nghiem ...`,
 đóng bằng `python tools/kb.py ket-thuc E-xxxx ...` (tự ghi bài học).
+"Ngày mở" là ngày ghi vào sổ. Trước khi đóng, hỏi người dùng đã thật sự đổi từ ngày nào và đếm 14 ngày từ ngày đó.
 
 | ID | Ngày mở | Giả thuyết | Cách thử | Chỉ số | Ngưỡng thắng | Trạng thái | Kết quả |
 |---|---|---|---|---|---|---|---|

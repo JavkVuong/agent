@@ -10,6 +10,8 @@ disable-model-invocation: true
 >
 > **Đã sửa ngày 2026-11-25:** đổi `name` thành `ext-offers`, thêm `disable-model-invocation: true`, thêm khối ghi chú này; bỏ `evals/evals.json`. Phần còn lại giữ nguyên bản gốc tiếng Anh.
 >
+> **Liên kết trong bài:** skill được nhắc bằng tên gốc (ví dụ `pricing`, `copy-editing`) là `ext-<tên>` nếu có trong `.claude/skills/`, không có thì bỏ qua. File không chép về (`evals/`, file CSV, `CONNECTORS.md`, file của skill khác) không mở được: bỏ qua, đừng tải từ nơi khác.
+>
 > **Khi dùng cho Vutty, Vutidy:** đọc `knowledge/INDEX.md`, `knowledge/products/`, `knowledge/brand/brand-book.md` và `knowledge/rules/compliance.md` trước. Chỗ nào nhắc `.agents/product-marketing.md` hay `.agents/developer-audience-context.md` thì đọc hai file cùng tên trong `.agents/` của repo này (chúng trỏ về `knowledge/`). Agent chỉ soạn, người dùng tự đăng, tự nộp, tự gửi. Không tạo tài khoản, không đăng nhập, không mở hộp thư thay người dùng. Không khan hiếm giả, không đếm ngược giả, không 'giá chỉ hôm nay' nếu không đúng. Luôn nói rõ mã nguồn miễn phí và tiền mua để ủng hộ, bản dựng sẵn, hỗ trợ. Phần SaaS (gói tháng, dùng thử) chỉ tham khảo. Khi file này khác `CLAUDE.md`, làm theo `CLAUDE.md`.
 
 

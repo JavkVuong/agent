@@ -29,7 +29,7 @@ AI khác: bảo nó đọc và làm theo file tương ứng, ví dụ:
 ## Bắt buộc
 
 - Đọc `knowledge/INDEX.md` và `knowledge/learnings/LEARNINGS.md` trước khi làm.
-- Ghi sổ chỉ bằng `python tools/kb.py` (chỉ cần Python 3.9+). Không sửa tay bảng bài học và thí nghiệm.
+- Ghi sổ chỉ bằng `python tools/kb.py` (chỉ cần Python 3.9+; macOS gõ `python3`). Không sửa tay bảng bài học và thí nghiệm.
 - Làm trên nhánh riêng, mở pull request. Không đẩy thẳng lên `main`.
 - Chạy `python tools/soat_skill.py` và `python -m pytest` trước khi đẩy.
 - Không đăng bài, không sửa trang Gumroad, không gửi email thay người dùng.

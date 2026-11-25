@@ -1,5 +1,27 @@
 # Nhật ký thay đổi
 
+## 25/11/2026: soát lỗi toàn bộ repo
+
+- `kb.py hoc`, `thu-nghiem`, `ket-thuc` không còn báo lỗi trên Python 3.9, bản có sẵn của macOS. Trước đây mọi lệnh ghi sổ đều
+  dừng với `TypeError` trên máy đó. CI giờ chạy thêm Python 3.9.
+- `kb.py so-lieu` và `cham-diem` đọc `1,234` lượt xem là một nghìn hai trăm ba mươi tư (trước đây hiểu thành một phẩy hai),
+  đọc đúng `1.234,50` và `$15`;
+  đọc được CSV lưu bằng Excel bản tiếng Việt (dấu `;`); file không phải UTF-8 thì báo cách lưu lại, không in traceback.
+- `kb.py hoc --thay-the` với mã sai không còn ghi bài học mới rồi mới báo lỗi (chạy lại sẽ thành hai bài trùng).
+  Dòng bảng thiếu cột không làm lệnh dừng bằng traceback.
+- Lần chạy tự động qua GitHub Actions giờ cộng dồn vào một nhánh như hai cách kia. Trước đây mỗi lần chạy làm lại
+  pull request từ `main`, nên báo cáo kỳ trước mất nếu chưa merge.
+- Script chung `automation/chuan-bi-nhanh.sh` thay cho lệnh git trong lời nhắc: chạy được cả khi bản clone trên cloud không có
+  `origin/main` (lỗi đã gặp thật), không xoá commit chưa đẩy, dừng rõ ràng khi xung đột.
+- Cron dùng `automation/chay-tren-may-chu.sh`. Lệnh cũ trong tài liệu hỏng từ lần chạy thứ hai: `git clone` báo thư mục đã có,
+  nên các lệnh sau chạy sai thư mục; kiểm thử lỗi thì kết quả nằm lại trên máy.
+- `tools/soat_skill.py` không còn chứa ký tự đảo chiều thật trong mã (GitHub cảnh báo file như vậy), soát thêm ký tự ẩn trong
+  `knowledge/`, `automation/`, `.claude/agents/`, CLAUDE.md, AGENTS.md, GEMINI.md, và chặn symlink trong skill ngoài.
+- Lần chạy tự động không mở hay đóng thí nghiệm. Trước khi đóng, hỏi người dùng đã đổi từ ngày nào: ngày 25/11/2026
+  README Vutty vẫn chưa có nút Gumroad, nên E-0001 chưa thật sự bắt đầu.
+- Báo cáo tự động tên `reports/YYYY-Www-tu-dong.md`, không trùng với báo cáo của `/gr-weekly-loop`.
+- Skill ngoài có thêm ghi chú về liên kết tới skill và file không chép về. 54 kiểm thử.
+
 ## 25/11/2026: thêm 15 skill mạnh của cộng đồng, lịch chạy dùng chung
 
 - 15 skill ngoài `ext-*` lấp chỗ `gr-*` còn thiếu: chẩn đoán trang bán, câu chữ, lý do trả tiền, giá, khung ra mắt, danh bạ nên nộp,

@@ -63,8 +63,9 @@ Agent chỉ soạn. Bạn tự đăng bài, tự sửa trang Gumroad, tự gửi
 ## Chạy tự động và chia sẻ
 
 - **Tự động định kỳ:** mọi cách chạy làm theo một lời nhắc chung, `automation/nghien-cuu-dinh-ky.md`, và cộng dồn kết quả
-  vào nhánh `auto/nghien-cuu-hang-tuan`. Chọn một trong ba: lịch Claude trên cloud (mỗi người tự tạo trên tài khoản của mình),
-  GitHub Actions (`.github/workflows/weekly-research.yml`, cần một secret), hoặc cron trên máy chủ riêng. Mỗi repo chỉ bật một lịch.
+  vào nhánh `auto/nghien-cuu-hang-tuan` (script `automation/chuan-bi-nhanh.sh`). Chọn một trong ba: lịch Claude trên cloud
+  (mỗi người tự tạo trên tài khoản của mình), GitHub Actions (`.github/workflows/weekly-research.yml`, cần một secret),
+  hoặc cron trên máy chủ riêng (`automation/chay-tren-may-chu.sh`). Mỗi repo chỉ bật một lịch.
 - **Chia sẻ:** thêm người qua Settings → Collaborators. Họ dùng Claude Code hoặc AI khác (Codex, Cursor, Gemini CLI đọc `AGENTS.md`)
   với tài khoản của chính họ, làm trên nhánh riêng và mở PR.
 - Chi tiết từng bước: [docs/chia-se-va-tu-dong.md](docs/chia-se-va-tu-dong.md).
@@ -72,11 +73,12 @@ Agent chỉ soạn. Bạn tự đăng bài, tự sửa trang Gumroad, tự gửi
 ## Sổ kiến thức (`knowledge/`)
 
 Đọc `knowledge/INDEX.md`. Quan trọng nhất: `learnings/LEARNINGS.md` (bài học), `experiments/EXPERIMENTS.md`
-(thí nghiệm, đang chạy E-0001 nút Gumroad trên README và E-0002 giá trả tuỳ ý), `rules/compliance.md`.
+(thí nghiệm: E-0001 nút Gumroad trên README, E-0002 giá trả tuỳ ý; tính 14 ngày từ ngày bạn thật sự đổi), `rules/compliance.md`.
 
 ## Công cụ `tools/kb.py`
 
-Chỉ cần Python 3.9 trở lên, không cài thêm gì.
+Chỉ cần Python 3.9 trở lên, không cài thêm gì. Trên macOS, gõ `python3` thay cho `python`.
+File CSV lưu bằng Excel: chọn "CSV UTF-8"; dấu phân cách `,` hay `;` đều được, số kiểu `1,234.50` hay `1.234,50` đều đọc đúng.
 
 | Lệnh | Việc |
 |---|---|
@@ -88,6 +90,7 @@ Chỉ cần Python 3.9 trở lên, không cài thêm gì.
 | `python tools/kb.py so-lieu file.csv --nhom-theo nguon` | Lượt xem, đơn, doanh thu, tỷ lệ chuyển đổi theo nguồn khách |
 | `python tools/kb.py tong-quan` | Tình trạng sổ |
 
-Soát skill trước khi merge: `python tools/soat_skill.py` (ký tự ẩn, script, hook, thiếu giấy phép, thiếu nguồn).
+Soát skill trước khi merge: `python tools/soat_skill.py` (ký tự ẩn, script, hook, symlink, thiếu giấy phép, thiếu nguồn;
+ký tự ẩn soát cả `knowledge/`, `automation/`, `.claude/agents/` và các file CLAUDE.md, AGENTS.md, GEMINI.md).
 
 Kiểm thử: `python -m pytest`.

@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import io
 import re
 import secrets
 import sys
@@ -62,20 +63,38 @@ def _o(text: str) -> str:
 def _doc(path: Path) -> str:
     if not path.exists():
         raise ToolError(f"Không thấy file {path}. Chạy lệnh trong thư mục repo hoặc dùng --goc.")
-    return path.read_text(encoding="utf-8")
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as e:
+        raise ToolError(f"File {path} không phải chữ UTF-8. Mở bằng trình soạn thảo, lưu lại dạng UTF-8.") from e
 
 
 def _ghi(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8", newline="\n")
+    # Không dùng Path.write_text(newline=...): tham số này chỉ có từ Python 3.10, macOS có sẵn Python 3.9.
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+
+
+SO_COT = 8  # số cột của bảng bài học và bảng thí nghiệm
+
+
+def _o_cua_dong(dong: str) -> list[str]:
+    """Tách một dòng bảng markdown thành các ô, thiếu thì thêm ô rỗng cho đủ SO_COT (để đọc không bị IndexError)."""
+    o = [c.strip() for c in dong.strip().strip("|").split("|")]
+    return o + [""] * (SO_COT - len(o))
+
+
+def _o_de_sua(dong: str, ma: str) -> list[str]:
+    """Như _o_cua_dong nhưng dùng trước khi sửa dòng: sai số cột thì báo lỗi thay vì sửa nhầm ô."""
+    o = [c.strip() for c in dong.strip().strip("|").split("|")]
+    if len(o) != SO_COT:
+        raise ToolError(f"Dòng {ma} có {len(o)} cột, cần {SO_COT} cột. Sửa dòng đó (thiếu cột, hoặc có dấu | thừa) rồi chạy lại.")
+    return o
 
 
 def _dong_bang(text: str, tien_to: str) -> list[list[str]]:
-    hang = []
-    for dong in text.splitlines():
-        if dong.startswith(f"| {tien_to}-"):
-            hang.append([c.strip() for c in dong.strip().strip("|").split("|")])
-    return hang
+    return [_o_cua_dong(d) for d in text.splitlines() if d.startswith(f"| {tien_to}-")]
 
 
 def _id_moi(text: str, tien_to: str, ngay: dt.date) -> str:
@@ -125,20 +144,27 @@ def them_bai_hoc(goc: Path, chu_de: str, bai_hoc: str, bang_chung: str, do_tin: 
     return ma
 
 
+def kiem_tra_bai_hoc_co(goc: Path, ma: str) -> None:
+    """Báo lỗi nếu sổ không có bài học mang mã này. Gọi trước khi ghi để không để lại bài nửa chừng."""
+    text = _doc(goc / "knowledge" / "learnings" / "LEARNINGS.md")
+    dong = [d for d in text.splitlines() if d.startswith(f"| {ma} |")]
+    if not dong:
+        raise ToolError(f"Không thấy bài học {ma}. Xem mã đúng trong knowledge/learnings/LEARNINGS.md.")
+    for d in dong:
+        _o_de_sua(d, ma)
+
+
 def thay_the_bai_hoc(goc: Path, ma_cu: str, ma_moi: str) -> None:
     """Đánh dấu bài học cũ đã bị bài học mới thay thế (không xoá)."""
     path = goc / "knowledge" / "learnings" / "LEARNINGS.md"
-    text = _doc(path)
-    dong_moi, thay = [], False
-    for dong in text.splitlines():
+    kiem_tra_bai_hoc_co(goc, ma_cu)
+    dong_moi = []
+    for dong in _doc(path).splitlines():
         if dong.startswith(f"| {ma_cu} |"):
-            o = dong.strip().strip("|").split("|")
-            o[-1] = f" thay-the bởi {ma_moi} "
-            dong = "|" + "|".join(o) + "|"
-            thay = True
+            o = _o_de_sua(dong, ma_cu)
+            o[SO_COT - 1] = f"thay-the bởi {ma_moi}"
+            dong = "| " + " | ".join(o) + " |"
         dong_moi.append(dong)
-    if not thay:
-        raise ToolError(f"Không thấy bài học {ma_cu}.")
     _ghi(path, "\n".join(dong_moi) + "\n")
 
 
@@ -166,7 +192,7 @@ def dong_thi_nghiem(goc: Path, ma: str, ket_qua: str, ket_luan: str,
     dong_moi, gia_thuyet = [], None
     for dong in text.splitlines():
         if dong.startswith(f"| {ma} |"):
-            o = [c.strip() for c in dong.strip().strip("|").split("|")]
+            o = _o_de_sua(dong, ma)
             if o[6] != "dang-chay":
                 raise ToolError(f"Thí nghiệm {ma} đã đóng rồi ({o[6]}).")
             gia_thuyet = o[2]
@@ -201,7 +227,7 @@ def file_qua_han(goc: Path, ngay: str | None = None) -> list[tuple[str, int]]:
     hom_nay = _hom_nay(ngay)
     kq = []
     for p in sorted((goc / "knowledge").rglob("*.md")):
-        dau = _dau_file(p.read_text(encoding="utf-8"))
+        dau = _dau_file(_doc(p).lstrip("\ufeff"))
         if "cap_nhat" not in dau:
             continue
         try:
@@ -219,10 +245,35 @@ def file_qua_han(goc: Path, ngay: str | None = None) -> list[tuple[str, int]]:
 # ---------- chấm điểm kênh quảng bá ----------
 
 def _so(gia_tri: str, ten: str, dong: int) -> float:
+    """Đọc số kiểu Mỹ (1,234.50) lẫn kiểu Việt (1.234,50), bỏ ký hiệu tiền và khoảng trắng.
+
+    Một dấu phẩy theo sau đúng 3 chữ số ("1,234") là dấu nghìn; "15,5" là số thập phân.
+    """
+    s = re.sub(r"[\s$€£₫]|usd|vnd", "", str(gia_tri or ""), flags=re.I)
+    if not s:
+        return 0.0
+    if "," in s and "." in s:
+        thap_phan = "," if s.rfind(",") > s.rfind(".") else "."
+        s = s.replace("." if thap_phan == "," else ",", "").replace(thap_phan, ".")
+    elif re.fullmatch(r"-?[1-9]\d{0,2}([,.]\d{3})+", s) and (s.count(",") + s.count(".") > 1 or "," in s):
+        s = s.replace(",", "").replace(".", "")          # 1,234 / 1.234.567: dấu nghìn
+    else:
+        s = s.replace(",", ".")
     try:
-        return float(str(gia_tri).replace(",", ".").strip() or 0)
+        return float(s)
     except ValueError as e:
         raise ToolError(f"Dòng {dong}: cột '{ten}' phải là số, đang là '{gia_tri}'.") from e
+
+
+def _doc_csv(path: Path) -> list[dict[str, str]]:
+    """Đọc CSV UTF-8, tự nhận dấu phân cách ',' hoặc ';' (Excel bản tiếng Việt lưu bằng ';')."""
+    try:
+        text = path.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError as e:
+        raise ToolError(f"File {path} không phải UTF-8. Trong Excel chọn Save As → 'CSV UTF-8 (Comma delimited)'.") from e
+    dau = text.split("\n", 1)[0]
+    phan_cach = ";" if dau.count(";") > dau.count(",") else ","
+    return list(csv.DictReader(io.StringIO(text, newline=""), delimiter=phan_cach))
 
 
 def _thang_5(hang: dict[str, str], ten: str, dong: int, mac_dinh: float = 3) -> float:
@@ -249,8 +300,7 @@ def cham_diem(hang: dict[str, str], dong: int = 0) -> float:
 
 
 def xep_hang_kenh(path: Path) -> list[tuple[str, float, str]]:
-    with open(path, encoding="utf-8-sig", newline="") as f:
-        hang = list(csv.DictReader(f))
+    hang = _doc_csv(path)
     if not hang:
         raise ToolError(f"File {path} chưa có kênh nào.")
     if "ten" not in hang[0]:
@@ -270,8 +320,7 @@ COT_SO_LIEU = ("nguon", "luot_xem", "don")
 
 def tom_tat_so_lieu(path: Path, nhom_theo: str = "nguon") -> dict:
     """Tóm tắt lượt xem trang, đơn, doanh thu theo nguồn khách (hoặc cột khác)."""
-    with open(path, encoding="utf-8-sig", newline="") as f:
-        hang = list(csv.DictReader(f))
+    hang = _doc_csv(path)
     if not hang:
         raise ToolError(f"File {path} không có dòng số liệu nào.")
     thieu = [c for c in COT_SO_LIEU if c not in hang[0]]
@@ -310,8 +359,8 @@ def tom_tat_so_lieu(path: Path, nhom_theo: str = "nguon") -> dict:
 def tong_quan(goc: Path, ngay: str | None = None) -> dict:
     hoc = goc / "knowledge" / "learnings" / "LEARNINGS.md"
     tn = goc / "knowledge" / "experiments" / "EXPERIMENTS.md"
-    bai = _dong_bang(hoc.read_text(encoding="utf-8"), "L") if hoc.exists() else []
-    thi = _dong_bang(tn.read_text(encoding="utf-8"), "E") if tn.exists() else []
+    bai = _dong_bang(_doc(hoc), "L") if hoc.exists() else []
+    thi = _dong_bang(_doc(tn), "E") if tn.exists() else []
     return {
         "bai_hoc_hieu_luc": sum(1 for b in bai if b[-1] == "hieu-luc"),
         "bai_hoc_tong": len(bai),
@@ -334,7 +383,7 @@ def _parser() -> argparse.ArgumentParser:
     s.add_argument("--bang-chung", default="", help="số đo hoặc link chứng minh")
     s.add_argument("--do-tin", default="trung-binh", choices=DO_TIN)
     s.add_argument("--nguon", default="kenh", help="'kenh' nếu tự đo, hoặc link")
-    s.add_argument("--thay-the", help="ID bài học cũ mà bài này thay thế, ví dụ L-0003")
+    s.add_argument("--thay-the", help="ID bài học cũ mà bài này thay thế, ví dụ L-0003 hoặc L-20261201-3f9a")
 
     s = sub.add_parser("thu-nghiem", help="mở thí nghiệm mới")
     s.add_argument("--gia-thuyet", required=True)
@@ -370,10 +419,12 @@ def main(argv: list[str] | None = None) -> int:
     goc: Path = args.goc
     try:
         if args.lenh == "hoc":
+            if args.thay_the:
+                kiem_tra_bai_hoc_co(goc, args.thay_the)  # kiểm tra trước để không ghi bài mới rồi mới báo lỗi
             ma = them_bai_hoc(goc, args.chu_de, args.bai_hoc, args.bang_chung, args.do_tin, args.nguon, args.ngay)
             if args.thay_the:
                 thay_the_bai_hoc(goc, args.thay_the, ma)
-            print(f"Đã ghi bài học {ma}.")
+            print(f"Đã ghi bài học {ma}." + (f" Bài {args.thay_the} chuyển sang thay-the." if args.thay_the else ""))
         elif args.lenh == "thu-nghiem":
             ma = mo_thi_nghiem(goc, args.gia_thuyet, args.cach_thu, args.chi_so, args.nguong, args.ngay)
             print(f"Đã mở thí nghiệm {ma}. Khi có kết quả: python tools/kb.py ket-thuc {ma} --ket-qua ... --ket-luan thang")

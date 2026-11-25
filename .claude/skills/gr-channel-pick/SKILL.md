@@ -7,6 +7,7 @@ description: Chấm điểm và chọn kênh quảng bá cho Vutty, Vutidy - the
 
 1. Mở `knowledge/market/channels.csv`. Thêm kênh mới với đủ cột:
    `ten, link, san_pham, khach_khop, y_dinh_mua, keo_dai, quy_mo, cong_suc (đều 1 đến 5), cho_phep_quang_ba (co/khong), ghi_chu`.
+   Ô có dấu phẩy thì bọc trong ngoặc kép, ví dụ `"Qiita, Zenn"`, nếu không các cột sẽ lệch.
 2. `cho_phep_quang_ba`: đọc luật của kênh. Không cho phép hoặc không rõ thì ghi `khong`.
 3. Chạy `python tools/kb.py cham-diem`.
 4. Đọc bài học chủ đề `kenh`: có thể loại kênh điểm cao (ví dụ từng bị gỡ bài).

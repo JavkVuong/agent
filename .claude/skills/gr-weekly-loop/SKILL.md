@@ -15,7 +15,7 @@ Vòng học liên tục: **nghiên cứu → làm → đo → học → làm t�
 5. **Nội dung** (content-marketer, skill `gr-content-piece` hoặc `gr-launch-post`): 1 bài chính, kèm bản ngôn ngữ khác nếu kịp.
 6. **Trang bán** (sales-optimizer): chỉ đổi khi có thí nghiệm đã đóng hoặc mới mở.
 7. **Kiểm tra** (compliance-checker, skill `gr-compliance-check`) cho mọi thứ sẽ đăng.
-8. **Báo cáo** tối đa 15 dòng, lưu ở `reports/YYYY-Www.md`:
+8. **Báo cáo** tối đa 15 dòng, lưu ở `reports/YYYY-Www.md` (lần chạy tự động dùng `reports/YYYY-Www-tu-dong.md`; đọc nó nếu có):
    - Tuần trước: lượt xem trang, đơn, doanh thu, sao GitHub, bài học mới (ID).
    - Tiến độ so với kế hoạch 90 ngày (25/11/2026 đến 23/2/2027): đang ở giai đoạn nào, đã qua cổng nào.
    - Thị trường: 3 điều mới.
